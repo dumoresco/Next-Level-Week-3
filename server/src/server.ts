@@ -1,11 +1,23 @@
 import express from "express";
-import { getRepository } from "typeorm";
-import Orphanage from "./models/Orphanage";
+import "express-async-errors";
+
 import "./database/connection";
+
+import routes from "./route";
+
+import path from "path";
+
+import cors from "cors";
+
+import errorHandler from "./errors/handler";
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
+app.use(routes);
+app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
+app.use(errorHandler);
 
 //Rota = conjunto
 
@@ -23,34 +35,6 @@ app.use(express.json());
 //  Query Params: htpp://localhost:3333/users?search=diego
 // Route Params: http://localhost:3333/users/2
 // Body: http://localhost:3333/users
-
-app.post("/orphanages", async (req, res) => {
-  const {
-    name,
-    latitude,
-    longitude,
-    about,
-    instructions,
-    opening_hours,
-    open_on_weekends,
-  } = req.body;
-
-  const orphanagesRepository = getRepository(Orphanage);
-
-  const orphanage = orphanagesRepository.create({
-    name,
-    latitude,
-    longitude,
-    about,
-    instructions,
-    opening_hours,
-    open_on_weekends,
-  });
-
-  await orphanagesRepository.save(orphanage);
-
-  return res.json({ message: "hello" });
-});
 
 app.listen(3333);
 
